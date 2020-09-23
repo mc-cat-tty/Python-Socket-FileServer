@@ -54,14 +54,16 @@ class ProtocolHandler:
             file.write(self.s.recv(BUFFSIZENUM))
             dim -= BUFFSIZENUM
         file.write(self.s.recv(dim))
-        logging.debug(file.tell())
-        logging.debug(original_dim)
-        if file.tell() != original_dim:
-            self.status_handler.error_file_recv_incomplete()
-            raise ConnectionError("FileRecvIncomplete")
-        else:
-            logging.info("File received")
-            self.status_handler.ok()
+        # logging.debug(file.tell())
+        # logging.debug(original_dim)
+        # if file.tell() != original_dim:  # Size check has no meaning because file size depends on the filesystem
+        #     self.status_handler.error_file_recv_incomplete()
+        #     raise ConnectionError("FileRecvIncomplete")
+        # else:
+        #     logging.info("File received")
+        #     self.status_handler.ok()
+        logging.info("File received")
+        self.status_handler.ok()
         self.status_handler.end()
 
     def send_file(self, file, filename):

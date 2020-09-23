@@ -51,6 +51,7 @@ class ProtocolHandler:
 
     def upload_file(self, file: BinaryIO, size: int):  # size [bytes]
         try:
+            # print(size)
             size_b = size.to_bytes(DIMBYTESNUM, 'big')
         except OverflowError:
             self.status_handler.error_file_too_large()
