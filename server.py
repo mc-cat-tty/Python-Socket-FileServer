@@ -53,7 +53,7 @@ q: Exit""")
             else:
                 protocol_handler.send_output("Command not found")
 
-        s.close_connection()
+        # s.close_connection()
 
 
 class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
