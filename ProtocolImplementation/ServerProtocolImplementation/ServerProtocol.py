@@ -50,14 +50,11 @@ class ProtocolHandler:
             raise ConnectionError("Client not confirming")
         dim = int.from_bytes(self.s.recv(DIMBYTESNUM), 'big')
         original_dim = dim
-        if dim <= BUFFSIZENUM:
-            file.write(self.s.recv(dim))
-        else:
-            while dim > BUFFSIZENUM:
-                file.write(self.s.recv(BUFFSIZENUM))
-                dim -= BUFFSIZENUM
-            file.write(self.s.recv(dim))
-        if file.tell() != original_dim:
+        while dim > BUFFSIZENUM:
+            file.write(self.s.recv(BUFFSIZENUM))
+            dim -= BUFFSIZENUM
+        file.write(self.s.recv(dim))
+        if os.path.getsize(file.name) != original_dim:
             self.status_handler.error_file_recv_incomplete()
             raise ConnectionError("FileRecvIncomplete")
         else:
