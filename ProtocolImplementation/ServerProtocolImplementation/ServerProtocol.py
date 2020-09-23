@@ -18,10 +18,14 @@ class ProtocolHandler:
     def get_input(self, text):
         self.status_handler.input()
         self.s.sendall(text.encode())
-        if not self.status_handler.is_code("OK", self.s.recv(CODEBYTES)):
+        data = self.s.recv(CODEBYTES)
+        logging.debug(data)
+        if not self.status_handler.is_code("OK", data):
             raise ConnectionError("Client not confirming")
 
-        if not self.status_handler.is_code("Response", self.s.recv(CODEBYTES)):
+        data = self.s.recv(CODEBYTES)
+        logging.debug(data)
+        if not self.status_handler.is_code("Response", data):
             raise ConnectionError("Client not responding")
         data = self.s.recv(BUFFSIZENUM).decode().strip()
         if not data:
@@ -65,8 +69,6 @@ class ProtocolHandler:
         logging.info("File received")
         self.status_handler.ok()
         self.status_handler.end()
-        while not self.s.recv(BUFFSIZENUM):
-            pass
 
     def send_file(self, file, filename):
         self.status_handler.ok()
