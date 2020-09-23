@@ -49,7 +49,7 @@ class ProtocolHandler:
         elif not self.status_handler.is_code("OK", data):
             raise ConnectionError("Client not confirming")
         dim = int.from_bytes(self.s.recv(DIMBYTESNUM), 'big')
-        original_dim = dim
+        # original_dim = dim
         while dim > BUFFSIZENUM:
             file.write(self.s.recv(BUFFSIZENUM))
             dim -= BUFFSIZENUM
@@ -65,6 +65,8 @@ class ProtocolHandler:
         logging.info("File received")
         self.status_handler.ok()
         self.status_handler.end()
+        while not self.s.recv(BUFFSIZENUM):
+            pass
 
     def send_file(self, file, filename):
         self.status_handler.ok()
