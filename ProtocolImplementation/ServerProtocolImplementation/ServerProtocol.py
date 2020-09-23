@@ -13,7 +13,7 @@ class ProtocolHandler:
 
     def close_connection(self):
         self.s.close()
-        logging.info(f"Connection closed by client {self.s}")  # TODO
+        logging.info(f"Connection closed by client {self.s.getsockname()}")
 
     def get_input(self, text):
         self.status_handler.input()
