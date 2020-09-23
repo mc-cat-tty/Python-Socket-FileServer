@@ -54,7 +54,9 @@ class ProtocolHandler:
             file.write(self.s.recv(BUFFSIZENUM))
             dim -= BUFFSIZENUM
         file.write(self.s.recv(dim))
-        if os.path.getsize(file.name) != original_dim:
+        logging.debug(file.tell())
+        logging.debug(original_dim)
+        if file.tell() != original_dim:
             self.status_handler.error_file_recv_incomplete()
             raise ConnectionError("FileRecvIncomplete")
         else:
