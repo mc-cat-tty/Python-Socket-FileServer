@@ -4,6 +4,7 @@ import socket
 import logging
 from ProtocolImplementation.Protocol import DIMBYTESNUM, BUFFSIZENUM, CODEBYTES, StatusHandler
 from typing import BinaryIO
+import threading
 
 
 class ProtocolHandler:
@@ -13,7 +14,7 @@ class ProtocolHandler:
 
     def close_connection(self):
         self.s.close()
-        logging.info(f"Connection closed by client {self.s.getsockname()}")
+        logging.info(f"Connection closed on {threading.current_thread().getName()}")
 
     def get_input(self, text):
         self.status_handler.input()
