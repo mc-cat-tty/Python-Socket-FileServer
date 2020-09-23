@@ -19,12 +19,12 @@ class ProtocolHandler:
         self.status_handler.input()
         self.s.sendall(text.encode())
         data = self.s.recv(CODEBYTES)
-        logging.debug(data)
+        # logging.debug(data)
         if not self.status_handler.is_code("OK", data):
             raise ConnectionError("Client not confirming")
 
         data = self.s.recv(CODEBYTES)
-        logging.debug(data)
+        # logging.debug(data)
         if not self.status_handler.is_code("Response", data):
             raise ConnectionError("Client not responding")
         data = self.s.recv(BUFFSIZENUM).decode().strip()
@@ -58,20 +58,22 @@ class ProtocolHandler:
             file.write(self.s.recv(BUFFSIZENUM))
             dim -= BUFFSIZENUM
         file.write(self.s.recv(dim))
-        logging.debug(file.tell())
-        logging.debug(original_dim)
-        while file.tell() != original_dim:
-            logging.debug(file.tell())
-            logging.debug(original_dim)
+        # logging.debug(file.tell())
+        # logging.debug(original_dim)
+        cont = 0
+        while file.tell() != original_dim and cont < 1000:  # Flush buffer function
+            # logging.debug(file.tell())
+            # logging.debug(original_dim)
             file.write(self.s.recv(BUFFSIZENUM))
-        # if file.tell() != original_dim:  # Size check has no meaning because file size depends on the filesystem
-        #     self.status_handler.error_file_recv_incomplete()
-        #     raise ConnectionError("FileRecvIncomplete")
-        # else:
-        #     logging.info("File received")
-        #     self.status_handler.ok()
-        logging.info("File received")
-        self.status_handler.ok()
+            cont += 1
+        if file.tell() != original_dim:
+            self.status_handler.error_file_recv_incomplete()
+            raise ConnectionError("FileRecvIncomplete")
+        else:
+            logging.info("File received")
+            self.status_handler.ok()
+        # logging.info("File received")
+        # self.status_handler.ok()
         self.status_handler.end()
 
     def send_file(self, file, filename):

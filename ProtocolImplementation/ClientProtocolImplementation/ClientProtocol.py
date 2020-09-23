@@ -41,11 +41,15 @@ class ProtocolHandler:
                 file.write(self.s.recv(BUFFSIZENUM))
                 dim -= BUFFSIZENUM
             file.write(self.s.recv(dim))
-        if file.tell() != original_dim:
-            self.status_handler.error_file_recv_incomplete()
-            raise ConnectionError("FileRecvIncomplete")
-        else:
-            self.status_handler.ok()
+            cont = 0
+            while file.tell() != original_dim and cont < 1000:  # Flush buffer function
+                file.write(self.s.recv(BUFFSIZENUM))
+                cont += 1
+            if file.tell() != original_dim:
+                self.status_handler.error_file_recv_incomplete()
+                raise ConnectionError("FileRecvIncomplete")
+            else:
+                self.status_handler.ok()
         self.status_handler.end()
 
 
