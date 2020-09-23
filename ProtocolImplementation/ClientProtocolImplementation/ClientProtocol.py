@@ -1,5 +1,5 @@
 import os
-from Protocol import DIMBYTESNUM, BUFFSIZENUM, CODEBYTES, StatusHandler
+from ProtocolImplementation.Protocol import DIMBYTESNUM, BUFFSIZENUM, CODEBYTES, StatusHandler
 import socket
 from typing import BinaryIO
 

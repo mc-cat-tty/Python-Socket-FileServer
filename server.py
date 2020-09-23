@@ -1,6 +1,6 @@
 import socketserver
 import logging
-from ServerProtocol import BUFFSIZENUM, FileHandler, ProtocolHandler
+from ProtocolImplementation.ServerProtocolImplementation.ServerProtocol import FileHandler, ProtocolHandler
 import socket
 import os
 

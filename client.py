@@ -1,5 +1,5 @@
 import socket
-from ClientProtocol import CODEBYTES, BUFFSIZENUM, FileHandler, ProtocolHandler, StatusHandler
+from ProtocolImplementation.ClientProtocolImplementation.ClientProtocol import CODEBYTES, FileHandler, ProtocolHandler, StatusHandler
 
 class UserHandler:
     def __init__(self, s: socket):

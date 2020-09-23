@@ -2,7 +2,7 @@ import os
 from datetime import date
 import socket
 import logging
-from Protocol import DIMBYTESNUM, BUFFSIZENUM, CODEBYTES, StatusHandler
+from ProtocolImplementation.Protocol import DIMBYTESNUM, BUFFSIZENUM, CODEBYTES, StatusHandler
 from typing import BinaryIO
 
 
@@ -93,6 +93,7 @@ class FileHandler:
         self.status_handler = StatusHandler(self.s)
 
     def filename_builder(self, filename):
+        filename = os.path.basename(filename)
         filename, extension = os.path.splitext(filename)
         new_name = f"{date.today().strftime('%Y-%m-%d')}_{self.surname}_{self.name}_{filename}"
         n = 1
