@@ -30,7 +30,7 @@ class ThreadedTCPRequestHandler(socketserver.BaseRequestHandler):
 
             if cmd == 'u' or cmd == 'U':
                 filename = protocol_handler.get_input("Filename: ")
-                if not filename;ì: break
+                if not filename: break
                 logging.info(f"Upload request from {self.client_address}. File: {filename}")
                 file_handler.upload(filename)
             elif cmd == 'd' or cmd == 'D':
