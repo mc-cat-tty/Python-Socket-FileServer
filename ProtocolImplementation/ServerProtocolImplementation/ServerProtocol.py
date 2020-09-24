@@ -54,27 +54,24 @@ class ProtocolHandler:
         elif not self.status_handler.is_code("OK", data):
             raise ConnectionError("Client not confirming")
         dim = int.from_bytes(self.s.recv(DIMBYTESNUM), 'big')
-        original_dim = dim
-        while dim > BUFFSIZENUM:
-            file.write(self.s.recv(BUFFSIZENUM))
-            dim -= BUFFSIZENUM
-        file.write(self.s.recv(dim))
+        received = 0
+        while received < dim:
+            data = self.s.recv(dim-received)
+            file.write(data)
+            received += len(data)
+        # while dim > BUFFSIZENUM:
+        #     data = self.s.recv(BUFFSIZENUM)
+        #     file.write(data)
+        #     dim -= len(data)
+        # file.write(self.s.recv(dim))
         # logging.debug(file.tell())
         # logging.debug(original_dim)
-        cont = 0
-        while file.tell() != original_dim and cont < 1000:  # Flush buffer function
-            # logging.debug(file.tell())
-            # logging.debug(original_dim)
-            file.write(self.s.recv(BUFFSIZENUM))
-            cont += 1
-        if file.tell() != original_dim:
+        if file.tell() != dim:
             self.status_handler.error_file_recv_incomplete()
             raise ConnectionError("FileRecvIncomplete")
         else:
             logging.info("File received")
             self.status_handler.ok()
-        # logging.info("File received")
-        # self.status_handler.ok()
         self.status_handler.end()
 
     def send_file(self, file, filename):

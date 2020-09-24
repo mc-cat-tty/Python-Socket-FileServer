@@ -33,23 +33,16 @@ class ProtocolHandler:
     def download_file(self, file):
         self.status_handler.ok()
         dim = int.from_bytes(self.s.recv(DIMBYTESNUM), 'big')
-        original_dim = dim
-        if dim <= BUFFSIZENUM:
-            file.write(self.s.recv(dim))
+        received = 0
+        while received < dim:
+            data = self.s.recv(dim - received)
+            file.write(data)
+            received += len(data)
+        if file.tell() != dim:
+            self.status_handler.error_file_recv_incomplete()
+            raise ConnectionError("FileRecvIncomplete")
         else:
-            while dim > BUFFSIZENUM:
-                file.write(self.s.recv(BUFFSIZENUM))
-                dim -= BUFFSIZENUM
-            file.write(self.s.recv(dim))
-            cont = 0
-            while file.tell() != original_dim and cont < 1000:  # Flush buffer function
-                file.write(self.s.recv(BUFFSIZENUM))
-                cont += 1
-            if file.tell() != original_dim:
-                self.status_handler.error_file_recv_incomplete()
-                raise ConnectionError("FileRecvIncomplete")
-            else:
-                self.status_handler.ok()
+            self.status_handler.ok()
         self.status_handler.end()
 
 
