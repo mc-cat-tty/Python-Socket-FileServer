@@ -24,7 +24,7 @@ def main():
     try:
         ip, port = input("Ip address: "), input("Port: ")
     except KeyboardInterrupt:
-        print("\n\nStopping...")
+        print("\n\nExiting...")
         exit()
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
