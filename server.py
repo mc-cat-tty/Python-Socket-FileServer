@@ -51,6 +51,7 @@ l/L: List
 h/H: Help
 q: Exit""")
             elif cmd == 'q':
+                protocol_handler.close_connection()
                 break
             else:
                 protocol_handler.send_output("Command not found")
@@ -67,7 +68,11 @@ def main():
                         datefmt="%H:%M:%S")
     logging.info("Server running...")
     server = ThreadedTCPServer((HOST, PORT), ThreadedTCPRequestHandler)
-    server.serve_forever()
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        print("\nStopping server. Waiting for the termination of all open connections...")
+        server.server_close()
 
 
 if __name__ == "__main__":

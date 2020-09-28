@@ -19,6 +19,8 @@ class ProtocolHandler:
                 raise ConnectionError("Server not confirming")
             if not self.status_handler.is_code("End", self.s.recv(CODEBYTES)):
                 raise ConnectionError("Server not ending")
+        except KeyboardInterrupt:
+            raise KeyboardInterrupt
         except:
             print("Error with transmission. Try again")
 

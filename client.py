@@ -21,13 +21,19 @@ class UserHandler:
                 file_handler.download()
 
 def main():
-    ip, port = input("Ip address: "), input("Port: ")
+    try:
+        ip, port = input("Ip address: "), input("Port: ")
+    except KeyboardInterrupt:
+        print("\n\nStopping...")
+        exit()
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
         s.connect((ip, int(port)))
         print(f"Connected to {s.getsockname()}")
         user_handler = UserHandler(s)
         user_handler.start()
+    except KeyboardInterrupt:
+        print("\n\nExiting...")
     finally:
         s.close()
 
