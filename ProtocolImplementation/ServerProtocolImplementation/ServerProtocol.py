@@ -56,7 +56,7 @@ class ProtocolHandler:
         dim = int.from_bytes(self.s.recv(DIMBYTESNUM), 'big')
         received = 0
         while received < dim:
-            data = self.s.recv(dim-received)
+            data = self.s.recv(dim - received)
             file.write(data)
             received += len(data)
         # while dim > BUFFSIZENUM:

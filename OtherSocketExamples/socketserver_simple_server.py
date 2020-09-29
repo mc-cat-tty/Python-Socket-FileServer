@@ -3,7 +3,12 @@ import threading
 import logging
 import argparse
 
+"""
+Connect to this server using netcat or similar utilities
+"""
+
 HOST, PORT = "127.0.0.1", 9999
+
 
 class ThreadedTCPRequestHandler(socketserver.BaseRequestHandler):
 
@@ -39,12 +44,15 @@ class ThreadedTCPRequestHandler(socketserver.BaseRequestHandler):
         self.request.close()
         logging.info(f"Connection closed by client {self.client_address}")
 
+
 class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
     pass
 
+
 def main():
     global HOST, PORT
-    logging.basicConfig(level=logging.DEBUG, format="%(threadName)s --> %(asctime)s - %(levelname)s: %(message)s", datefmt="%H:%M:%S")
+    logging.basicConfig(level=logging.DEBUG, format="%(threadName)s --> %(asctime)s - %(levelname)s: %(message)s",
+                        datefmt="%H:%M:%S")
     parser = argparse.ArgumentParser()
     parser.add_argument("-a", "--address", help="host address", default=HOST, type=str, dest="address")
     parser.add_argument("-p", "--port", help="port number", default=PORT, type=int, dest="port")

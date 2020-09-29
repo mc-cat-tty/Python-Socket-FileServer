@@ -36,7 +36,7 @@ class StatusHandler:
             return False
 
     def __send_code(self, codename):
-            self.s.sendall(ProtocolCodes[codename])
+        self.s.sendall(ProtocolCodes[codename])
 
     def ok(self):
         self.__send_code("OK")

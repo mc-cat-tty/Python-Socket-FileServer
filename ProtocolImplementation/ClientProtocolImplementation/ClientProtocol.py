@@ -47,7 +47,6 @@ class ProtocolHandler:
             self.status_handler.ok()
         self.status_handler.end()
 
-
     def upload_file(self, file: BinaryIO, size: int):  # size [bytes]
         try:
             # print(size)

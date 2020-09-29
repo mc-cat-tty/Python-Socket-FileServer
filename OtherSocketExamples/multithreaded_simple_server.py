@@ -17,6 +17,7 @@ Connect to this server using netcat or similar utilities
 HOST, PORT = "127.0.0.1", 9999
 s = socket(AF_INET, SOCK_STREAM)
 
+
 def client_handle(conn, addr):
     logging.info(f"New connection {addr}".encode())
     while True:
@@ -60,9 +61,11 @@ def server_loop(s):
         handle_thread.start()
         client_id += 1
 
+
 def main():
     global HOST, PORT
-    logging.basicConfig(level=logging.DEBUG, format="%(threadName)s --> %(asctime)s - %(levelname)s: %(message)s", datefmt="%H:%M:%S")
+    logging.basicConfig(level=logging.DEBUG, format="%(threadName)s --> %(asctime)s - %(levelname)s: %(message)s",
+                        datefmt="%H:%M:%S")
     parser = argparse.ArgumentParser()
     parser.add_argument("-a", "--address", help="host address", default=HOST, type=str, dest="address")
     parser.add_argument("-p", "--port", help="port number", default=PORT, type=int, dest="port")
@@ -72,7 +75,7 @@ def main():
     s.bind((HOST, PORT))
     s.listen(5)
     logging.info(f"Server running on {HOST}:{PORT}...")
-    server = threading.Thread(target=server_loop, args=(s, ), daemon=True)
+    server = threading.Thread(target=server_loop, args=(s,), daemon=True)
     server.setName("server")
     server.start()
     try:

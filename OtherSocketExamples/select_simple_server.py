@@ -5,34 +5,34 @@ from select import select
 from collections import defaultdict
 import threading
 
+"""
+Connect to this server using netcat or similar utilities
+"""
+
 HOST, PORT = "127.0.0.1", 9999
 
-def handle_command(cmd: str, sock: socket):
-    # sock.sendall(">> ".encode())
-    # data = sock.recv(1024).decode()  # command
-    # cmd = data[0]
-    logging.debug(f"Received: {cmd}")
+
+def handle_command(cmd: str, server_sock: socket, client_sock: socket):
     if not cmd: return
-    if cmd == '0':  # TODO
-        return f"Client address: {sock.getpeername()}\n"
+    if cmd == '0':
+        return f"Client address: {client_sock.getpeername()}\n"
     elif cmd == '1':
-        return f"Socket address: {sock.getsockname()}\n"
+        return f"Socket address: {server_sock.getsockname()}\n"
     elif cmd == '2':
         return f"Current thread name: {threading.current_thread().getName()}\n"
     elif cmd == '3':
         return f"Alive threads number: {threading.active_count()}\n"
     elif cmd == '4':
         return f"Alive threads: {[t.getName() for t in threading.enumerate()]}\n"
-    elif cmd == 'q':  # TODO
-        return
-    else:  # Help  # TODO
+    else:  # Help
         return """'0': Return the remote address (client) to which the socket is connected;
-    '1': Return the server socket's own address;
-    '2': Return the current thread name;
-    '3': Return the number of alive threads;
-    '4': Return the list of names of alive threads (comma separated);
-    'q': Quit server when all the clients will be disconnected;
-    """
+'1': Return the server socket's own address;
+'2': Return the current thread name;
+'3': Return the number of alive threads;
+'4': Return the list of names of alive threads (comma separated);
+'q': Quit server when all the clients will be disconnected;
+"""
+
 
 def server_loop(server_sock: socket):
     sock_io = list()
@@ -52,27 +52,35 @@ def server_loop(server_sock: socket):
                 try:
                     while True:
                         buf += r.recv(1024)
+                        if not buf: break
                 except socket.error:
                     pass
-
                 if not buf:
-                    logging.warning(f"Closed connection: {r.getsockname()}")
+                    logging.warning(f"Closed connection: {r.getpeername()}")
                     r.close()
                     sock_io.remove(r)
                 else:
                     data[r] = buf  # Saving data
                     waiting[r] = False
-                    logging.info(f"Received {buf.decode().strip()} from {r.getsockname()}")
+                    logging.info(f"Received {buf.decode().strip()} from {r.getpeername()}")
 
         for w in writable:
             if data[w]:
                 logging.info(f"Consuming {data[w]}")
-                w.sendall(handle_command(data[w].decode().strip(), server_sock).encode())
+                cmd = data[w].decode().strip()
+                if cmd == 'q':
+                    logging.warning(f"Closed connection: {w.getpeername()}")
+                    w.close()
+                    sock_io.remove(w)
+                else:
+                    if cmd:
+                        w.sendall(handle_command(cmd, server_sock, w).encode())
                 del data[w]
             elif not waiting[w]:
                 w.sendall(">> ".encode())
-                logging.info(f"Requested command from {r.getsockname()}")
+                logging.info(f"Requested command to {w.getpeername()}")
                 waiting[w] = True
+
 
 def main():
     global HOST, PORT

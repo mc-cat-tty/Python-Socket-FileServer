@@ -1,6 +1,8 @@
 import socket
-from ProtocolImplementation.ClientProtocolImplementation.ClientProtocol import CODEBYTES, FileHandler, ProtocolHandler, StatusHandler
+from ProtocolImplementation.ClientProtocolImplementation.ClientProtocol import CODEBYTES, FileHandler, ProtocolHandler, \
+    StatusHandler
 import argparse
+
 
 class UserHandler:
     def __init__(self, s: socket):
@@ -20,6 +22,7 @@ class UserHandler:
                 file_handler.upload()
             elif status_handler.is_code("SendBytes", data):
                 file_handler.download()
+
 
 def main():
     parser = argparse.ArgumentParser()
