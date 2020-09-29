@@ -26,9 +26,9 @@ run `py client.py`
 
 ## Protocol diagrams
 
-![Protocol Input Output](Protocol_Input_Output.png)
+![ProtocolInputOutput](ProtocolInputOutput.png)
 
-![Protocol Upload Download](Protocol_Upload_Download.png)
+![ProtocolUploadDownload](ProtocolUploadDownload.png)
 
 
 ## Authors

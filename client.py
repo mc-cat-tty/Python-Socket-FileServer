@@ -1,5 +1,6 @@
 import socket
 from ProtocolImplementation.ClientProtocolImplementation.ClientProtocol import CODEBYTES, FileHandler, ProtocolHandler, StatusHandler
+import argparse
 
 class UserHandler:
     def __init__(self, s: socket):
@@ -21,8 +22,17 @@ class UserHandler:
                 file_handler.download()
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-a", "--address", help="host address", default=None, type=str, dest="address")
+    parser.add_argument("-p", "--port", help="port number", default=None, type=int, dest="port")
+    args = parser.parse_args()
+    ip = args.address
+    port = args.port
     try:
-        ip, port = input("Ip address: "), input("Port: ")
+        if not ip:
+            ip = input("Ip address: ")
+        if not port:
+            port = input("Port: ")
     except KeyboardInterrupt:
         print("\n\nExiting...")
         exit()
