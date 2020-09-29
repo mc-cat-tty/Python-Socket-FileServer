@@ -3,8 +3,9 @@ import logging
 from ProtocolImplementation.ServerProtocolImplementation.ServerProtocol import FileHandler, ProtocolHandler
 import socket
 import os
+import argparse
 
-HOST, PORT = "", 1234
+HOST, PORT = "127.0.0.1", 9999
 
 
 class ThreadedTCPRequestHandler(socketserver.BaseRequestHandler):
@@ -64,9 +65,16 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
 
 
 def main():
+    global HOST, PORT
     logging.basicConfig(level=logging.DEBUG, format="%(threadName)s --> %(asctime)s - %(levelname)s: %(message)s",
                         datefmt="%H:%M:%S")
-    logging.info("Server running...")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-a", "--address", help="host address", default=HOST, type=str, dest="address")
+    parser.add_argument("-p", "--port", help="port number", default=PORT, type=int, dest="port")
+    args = parser.parse_args()
+    PORT = args.port
+    HOST = args.address
+    logging.info(f"Server running on {HOST}:{PORT}...")
     server = ThreadedTCPServer((HOST, PORT), ThreadedTCPRequestHandler)
     try:
         server.serve_forever()
