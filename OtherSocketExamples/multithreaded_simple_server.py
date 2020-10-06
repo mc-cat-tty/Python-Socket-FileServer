@@ -19,7 +19,7 @@ s = socket(AF_INET, SOCK_STREAM)
 
 
 def client_handle(conn, addr):
-    logging.info(f"New connection {addr}".encode())
+    logging.info(f"New connection {addr}")
     while True:
         conn.sendall(">> ".encode())
         data = conn.recv(1024).decode()  # command
