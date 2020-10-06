@@ -2,6 +2,7 @@ import argparse
 import logging
 import threading
 import asyncio
+import sys
 
 """
 Connect to this server using netcat or similar utilities
@@ -38,7 +39,11 @@ async def server_handler(reader, writer):
     while True:
         writer.write(">> ".encode())
         await writer.drain()
-        data = await reader.read(1024)
+        try:
+            data = await reader.read(1024)
+        except ConnectionResetError:
+            logging.error(f"Closed connection - Reset Connection Error: {addr}")
+            break
         cmd = data.decode().strip()
 
         logging.info(f"Received {cmd} from {addr}")
@@ -57,25 +62,25 @@ async def server_handler(reader, writer):
 
 async def main():
     global HOST, PORT
-    logging.basicConfig(level=logging.DEBUG, format="%(threadName)s --> %(asctime)s - %(levelname)s: %(message)s",
-                        datefmt="%H:%M:%S")
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-a", "--address", help="host address", default=HOST, type=str, dest="address")
-    parser.add_argument("-p", "--port", help="port number", default=PORT, type=int, dest="port")
-    args = parser.parse_args()
-    PORT = args.port
-    HOST = args.address
+    try:
+        HOST = sys.argv[1]
+    except:
+        pass
+    try:
+        PORT = sys.argv[2]
+    except:
+        pass
 
     logging.info(f"Server running on {HOST}:{PORT}...")
 
     server = await asyncio.start_server(server_handler, HOST, PORT)
 
-    try:
-        async with server:
-            await server.serve_forever()
-    except KeyboardInterrupt:
-        logging.warning("Server stopping...")
+    async with server:
+        await server.serve_forever()
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        logging.warning("Server stopping...")

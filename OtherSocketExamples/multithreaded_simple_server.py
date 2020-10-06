@@ -22,7 +22,11 @@ def client_handle(conn, addr):
     logging.info(f"New connection {addr}")
     while True:
         conn.sendall(">> ".encode())
-        data = conn.recv(1024).decode()  # command
+        try:
+            data = conn.recv(1024).decode()  # command
+        except ConnectionResetError:
+            logging.error(f"Closed connection - Reset Connection Error: {addr}")
+            break
         cmd = data[0]
         logging.debug(f"Received: {cmd}")
         if not cmd: break
