@@ -4,6 +4,7 @@ import logging
 from select import select
 from collections import defaultdict
 import threading
+import sys
 
 """
 Connect to this server using netcat or similar utilities
@@ -107,6 +108,7 @@ def main():
         logging.warning("Server stopping...")
     finally:
         server_sock.close()
+        sys.exit()
 
 
 if __name__ == "__main__":
