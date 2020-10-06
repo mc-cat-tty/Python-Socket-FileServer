@@ -9,6 +9,7 @@ Connect to this server using netcat or similar utilities
 
 HOST, PORT = "127.0.0.1", 9999
 
+
 def handle_command(cmd: str, client_stream: asyncio.StreamWriter):
     if not cmd: return
     if cmd == '0':
@@ -29,6 +30,7 @@ def handle_command(cmd: str, client_stream: asyncio.StreamWriter):
 '4': Return the list of names of alive threads (comma separated);
 'q': Quit server when all the clients will be disconnected;
 """
+
 
 async def server_handler(reader, writer):
     addr = writer.get_extra_info('peername')
@@ -52,6 +54,7 @@ async def server_handler(reader, writer):
             writer.write(handle_command(cmd, writer).encode())
             await writer.drain()
 
+
 async def main():
     global HOST, PORT
     logging.basicConfig(level=logging.DEBUG, format="%(threadName)s --> %(asctime)s - %(levelname)s: %(message)s",
@@ -67,13 +70,11 @@ async def main():
 
     server = await asyncio.start_server(server_handler, HOST, PORT)
 
-
     try:
         async with server:
             await server.serve_forever()
     except KeyboardInterrupt:
         logging.warning("Server stopping...")
-
 
 
 if __name__ == "__main__":
