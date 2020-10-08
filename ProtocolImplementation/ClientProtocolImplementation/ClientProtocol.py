@@ -1,20 +1,22 @@
 import os
-from ProtocolImplementation.Protocol import DIMBYTESNUM, BUFFSIZENUM, CODEBYTES, StatusHandler
+from ProtocolImplementation.Protocol import DIMBYTESNUM, BUFFSIZENUM, CODEBYTES, StatusHandler, ReliableTransmission
 import socket
 from typing import BinaryIO
 
 
 class ProtocolHandler:
-    def __init__(self, s: socket):
-        self.s: socket = s
+    def __init__(self, s: socket.socket):
+        self.s: socket.socket = s
         self.status_handler = StatusHandler(self.s)
 
     def input(self):
         try:
-            text = self.s.recv(BUFFSIZENUM).decode()
+            text = ReliableTransmission.recvstring(self.s)
             self.status_handler.ok()
             self.status_handler.response()
-            self.s.sendall(input(text)[:BUFFSIZENUM].encode())
+            input_text = input(text)
+            input_text += "\n"
+            self.s.sendall(input().encode())
             if not self.status_handler.is_code("OK", self.s.recv(CODEBYTES)):
                 raise ConnectionError("Server not confirming")
             if not self.status_handler.is_code("End", self.s.recv(CODEBYTES)):
@@ -72,8 +74,8 @@ class ProtocolHandler:
 
 
 class FileHandler:
-    def __init__(self, s: socket):
-        self.s: socket = s
+    def __init__(self, s: socket.socket):
+        self.s: socket.socket = s
         self.protocol_handler = ProtocolHandler(self.s)
         self.status_handler = StatusHandler(self.s)
 

@@ -5,7 +5,7 @@ import argparse
 
 
 class UserHandler:
-    def __init__(self, s: socket):
+    def __init__(self, s: socket.socket):
         self.s = s
 
     def start(self):
