@@ -10,6 +10,10 @@ Connect to this server using netcat or similar utilities
 
 HOST, PORT = "127.0.0.1", 9999
 
+# TODO: mantieni numero di client connessi e ritorna lista con indirizzi
+# TODO: trasforma write in writelines e termina con \n
+# TODO: usa readline e termina comando con \n
+
 
 def handle_command(cmd: str, client_stream: asyncio.StreamWriter):
     if not cmd: return
@@ -56,20 +60,20 @@ async def server_handler(reader, writer):
             writer.close()
             break
         else:
-            writer.write(handle_command(cmd, writer).encode())
+            writer.write(handle_command(cmd, writer).encode())  # TODO: writeline
             await writer.drain()
 
 
 async def main():
     global HOST, PORT
-    try:
-        HOST = sys.argv[1]
-    except:
-        pass
-    try:
-        PORT = sys.argv[2]
-    except:
-        pass
+    logging.basicConfig(level=logging.DEBUG, format="%(threadName)s --> %(asctime)s - %(levelname)s: %(message)s",
+                        datefmt="%H:%M:%S")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-a", "--address", help="host address", default=HOST, type=str, dest="address")
+    parser.add_argument("-p", "--port", help="port number", default=PORT, type=int, dest="port")
+    args = parser.parse_args()  # TODO: non funzionante con asyncio
+    PORT = args.port
+    HOST = args.address
 
     logging.info(f"Server running on {HOST}:{PORT}...")
 

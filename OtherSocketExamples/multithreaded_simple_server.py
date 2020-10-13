@@ -6,6 +6,7 @@ import argparse
 """
 Connect to this server using netcat or similar utilities
 """
+# TODO: termina con \n --> adatta ricezione e trasmissione
 
 # '0': Return the remote address (client) to which the socket is connected;
 # '1': Return the server socket's own address;

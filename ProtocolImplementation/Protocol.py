@@ -1,7 +1,9 @@
 import os
 import socket
 
-DIMBYTESNUM = 5  # Can be represented up to 2^(5*8) b = 1.0995116 TB
+# TODO: sanifica input utente in server --> togli . e / (tutti i caratteri che rendono possibile la navigazione tra cartelle) --> potrebbe rimanare stringa vuota
+
+DIMBYTESNUM = 5  # Can be represented up to 2^(5*8) b = 1 TB
 BUFFSIZENUM = 1024  # bytes
 CODEBYTES = 1
 
@@ -74,7 +76,7 @@ class StatusHandler:
 
 class ReliableTransmission:
     @classmethod
-    def recvall(cls, s: socket.socket, size: int):
+    def recvall(cls, s: socket.socket, size: int):  # TODO: usa yeld per ricevere dati fino a size
         """
         This method receives size bytes and then returns the received data
 
@@ -92,7 +94,7 @@ class ReliableTransmission:
         return buf
 
     @classmethod
-    def recvstring(cls, s: socket.socket, eot: str = "\n", encoding: str = "utf-8"):
+    def recvstring(cls, s: socket.socket, eot: str = "\n", encoding: str = "utf-8"):  # TODO: recvline, EOL
         """
         This method receives until eot occurs and then returns the received data
 

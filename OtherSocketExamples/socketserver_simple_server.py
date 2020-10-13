@@ -9,6 +9,7 @@ Connect to this server using netcat or similar utilities
 
 HOST, PORT = "127.0.0.1", 9999
 
+# TODO: termina con \n --> adatta ricezione e trasmissione
 
 class ThreadedTCPRequestHandler(socketserver.BaseRequestHandler):
 
