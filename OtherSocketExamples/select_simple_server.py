@@ -11,6 +11,8 @@ Connect to this server using netcat or similar utilities
 
 HOST, PORT = "127.0.0.1", 9999
 
+# test
+
 
 def handle_command(cmd: str, server_sock: socket, client_sock: socket):
     if not cmd: return
