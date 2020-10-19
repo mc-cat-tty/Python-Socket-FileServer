@@ -4,12 +4,17 @@ import logging
 from select import select
 from collections import defaultdict
 import threading
+import sys
 
 """
 Connect to this server using netcat or similar utilities
 """
 
 HOST, PORT = "127.0.0.1", 9999
+
+# TODO: mantieni numero e lista client connessi
+# TODO: sistema socket asincrono con sendall --> fai send e togli quello che ha inviato
+# TODO: termina con \n --> adatta ricezione e trasmissione
 
 
 def handle_command(cmd: str, server_sock: socket, client_sock: socket):
@@ -107,6 +112,7 @@ def main():
         logging.warning("Server stopping...")
     finally:
         server_sock.close()
+        sys.exit()
 
 
 if __name__ == "__main__":

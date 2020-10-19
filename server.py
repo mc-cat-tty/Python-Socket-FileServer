@@ -11,7 +11,7 @@ HOST, PORT = "127.0.0.1", 9999
 class ThreadedTCPRequestHandler(socketserver.BaseRequestHandler):
     def handle(self):
         logging.info(f"New connection {self.client_address}")
-        s: socket = self.request
+        s: socket.socket = self.request
         protocol_handler = ProtocolHandler(s)
 
         name = protocol_handler.get_input("Name: ")

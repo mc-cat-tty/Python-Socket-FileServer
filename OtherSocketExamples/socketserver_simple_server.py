@@ -9,6 +9,7 @@ Connect to this server using netcat or similar utilities
 
 HOST, PORT = "127.0.0.1", 9999
 
+# TODO: termina con \n --> adatta ricezione e trasmissione
 
 class ThreadedTCPRequestHandler(socketserver.BaseRequestHandler):
 
@@ -16,7 +17,11 @@ class ThreadedTCPRequestHandler(socketserver.BaseRequestHandler):
         logging.info(f"New connection {self.client_address}".encode())
         while True:
             self.request.sendall(">> ".encode())
-            data = self.request.recv(1024).decode()  # command
+            try:
+                data = self.request.recv(1024).decode()  # command
+            except ConnectionResetError:
+                logging.error(f"Closed connection - Reset Connection Error: {self.client_address}")
+                break
             cmd = data[0]
             logging.debug(f"Received: {cmd}")
             if not cmd: break

@@ -6,6 +6,7 @@ import argparse
 """
 Connect to this server using netcat or similar utilities
 """
+# TODO: termina con \n --> adatta ricezione e trasmissione
 
 # '0': Return the remote address (client) to which the socket is connected;
 # '1': Return the server socket's own address;
@@ -19,10 +20,14 @@ s = socket(AF_INET, SOCK_STREAM)
 
 
 def client_handle(conn, addr):
-    logging.info(f"New connection {addr}".encode())
+    logging.info(f"New connection {addr}")
     while True:
         conn.sendall(">> ".encode())
-        data = conn.recv(1024).decode()  # command
+        try:
+            data = conn.recv(1024).decode()  # command
+        except ConnectionResetError:
+            logging.error(f"Closed connection - Reset Connection Error: {addr}")
+            break
         cmd = data[0]
         logging.debug(f"Received: {cmd}")
         if not cmd: break

@@ -8,8 +8,8 @@ import threading
 
 
 class ProtocolHandler:
-    def __init__(self, s: socket):
-        self.s: socket = s
+    def __init__(self, s: socket.socket):
+        self.s: socket.socket = s
         self.status_handler = StatusHandler(self.s)
 
     def close_connection(self):
@@ -91,7 +91,7 @@ class ProtocolHandler:
 
 
 class FileHandler:
-    def __init__(self, name, surname, s: socket):
+    def __init__(self, name, surname, s: socket.socket):
         self.name = name
         self.surname = surname
         self.path = os.path.join(os.getcwd(), f"{name}_{surname}")

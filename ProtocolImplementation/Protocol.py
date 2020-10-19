@@ -1,7 +1,9 @@
 import os
 import socket
 
-DIMBYTESNUM = 4
+# TODO: sanifica input utente in server --> togli . e / (tutti i caratteri che rendono possibile la navigazione tra cartelle) --> potrebbe rimanare stringa vuota
+
+DIMBYTESNUM = 5  # Can be represented up to 2^(5*8) b = 1 TB
 BUFFSIZENUM = 1024  # bytes
 CODEBYTES = 1
 
@@ -20,13 +22,13 @@ ProtocolCodes = {  # 1 byte long codes
     "End": b'\x14',
     "SendBytes": b'\x15',
     "GetBytes": b'\x16',
-    }
+}
 
 
 class StatusHandler:
     Codes = ProtocolCodes
 
-    def __init__(self, s: socket):
+    def __init__(self, s: socket.socket):
         self.s = s
 
     def is_code(self, codename, value):  # Check if 'value' is equal to the code associated with codename
@@ -70,3 +72,42 @@ class StatusHandler:
 
     def error_file_not_found(self):
         self.__send_code("FileNotFound")
+
+
+class ReliableTransmission:
+    @classmethod
+    def recvall(cls, s: socket.socket, size: int):  # TODO: usa yeld per ricevere dati fino a size
+        """
+        This method receives size bytes and then returns the received data
+
+        :param s: socket over which send data
+        :param size: number of bytes to receive
+        :return: received buffer
+        :rtype: bytes
+        """
+        received_bytes: int = 0
+        buf: bytes = bytes()
+        while received_bytes < size:
+            tmp = s.recv(BUFFSIZENUM)
+            received_bytes += len(tmp)
+            buf += received_bytes
+        return buf
+
+    @classmethod
+    def recvstring(cls, s: socket.socket, eot: str = "\n", encoding: str = "utf-8"):  # TODO: recvline, EOL
+        """
+        This method receives until eot occurs and then returns the received data
+
+        :param s: socket over which send data
+        :param eot: End-Of-Transmission character (1 byte-long)
+        :param encoding: used to decode received bytes
+        :return: received string (buffer decoded) without eot character
+        :rtype: str
+        """
+        eot = bytes(eot)
+        buf: bytes = bytes()
+        while True:
+            tmp = s.recv(1)
+            if eot in tmp: break
+            buf += tmp
+        return buf.decode(encoding)
