@@ -23,7 +23,8 @@ class RequestHandler(socketserver.BaseRequestHandler):
             except ConnectionResetError:
                 logging.error(f"Closed connection - Reset Connection Error: {self.client_address}")
                 break
-            cmd = data
+            if cmd:
+                cmd = data[0]
             logging.debug(f"Received: {cmd}")
             if not cmd: break
             if cmd == '0':
@@ -69,6 +70,6 @@ if __name__ == "__main__":
     HOST = args.address
 
     try:
-        main(HOST, PORT)
+        main(HOST, PORT)  # TODO: Keyboard listener
     except KeyboardInterrupt:
         logging.warning("Stopping server...")
