@@ -2,21 +2,27 @@ import argparse
 import logging
 import threading
 import asyncio
-import sys
 
 """
 Connect to this server using netcat or similar utilities
 """
 
-HOST, PORT = "127.0.0.1", 9999
+HOST, PORT = "127.0.0.1", 9999  # Default values
 
-# TODO: mantieni numero di client connessi e ritorna lista con indirizzi
-# TODO: trasforma write in writelines e termina con \n
-# TODO: usa readline e termina comando con \n
+CLIENTS = list()
 
 
 def handle_command(cmd: str, client_stream: asyncio.StreamWriter):
-    if not cmd: return
+    """
+    This function handle a command and returns the output (as a string) which has to be sent to the client
+
+    :param cmd: command to be handled
+    :param client_stream: StreamWriter connected to the client that performs the request
+    :return:
+    :rtype: str
+    """
+
+    if not cmd: return  # Connection terminated
     if cmd == '0':
         return f"Client address: {client_stream.get_extra_info('peername')}\n"
     elif cmd == '1':
@@ -27,25 +33,43 @@ def handle_command(cmd: str, client_stream: asyncio.StreamWriter):
         return f"Alive threads number: {threading.active_count()}\n"
     elif cmd == '4':
         return f"Alive threads: {[t.getName() for t in threading.enumerate()]}\n"
+    elif cmd == '5':
+        return f"Number of connected clients {len(CLIENTS)}\n"
+    elif cmd == '6':
+        return f"Connected clients: {CLIENTS}\n"
     else:  # Help
         return """'0': Return the remote address (client) to which the socket is connected;
 '1': Return the server socket's own address;
 '2': Return the current thread name;
 '3': Return the number of alive threads;
-'4': Return the list of names of alive threads (comma separated);
+'4': Return the list of alive threads' names;
+'5': Return the number of connected clients;
+'6': Return the list of connected clients' names;
 'q': Quit server when all the clients will be disconnected;
 """
 
 
-async def server_handler(reader, writer):
+async def close_connection(writer: asyncio.StreamWriter):
+    global CLIENTS
+    addr = writer.get_extra_info('peername')
+    logging.warning(f"Closed connection: {addr}")
+    CLIENTS.remove(writer.get_extra_info('peername'))
+    writer.close()
+    await writer.wait_closed()
+
+
+async def server_handler(reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
+    global CLIENTS
     addr = writer.get_extra_info('peername')
     logging.info(f"Serving {addr}")
+    CLIENTS.append(addr)
     while True:
         writer.write(">> ".encode())
-        await writer.drain()
+        await writer.drain()  # Flushing data
         try:
-            data = await reader.read(1024)
-        except ConnectionResetError:
+            data = await reader.readline()
+        except ConnectionResetError:  # Netcat for Windows sends RST packet to close the connection
+            await close_connection(writer)
             logging.error(f"Closed connection - Reset Connection Error: {addr}")
             break
         cmd = data.decode().strip()
@@ -53,38 +77,45 @@ async def server_handler(reader, writer):
         logging.info(f"Received {cmd} from {addr}")
 
         if not cmd:
-            writer.close()
+            await close_connection(writer)
             break
         elif cmd == 'q':
-            logging.warning(f"Closed connection: {addr}")
-            writer.close()
+            await close_connection(writer)
             break
         else:
-            writer.write(handle_command(cmd, writer).encode())  # TODO: writeline
+            writer.write(handle_command(cmd, writer).encode())
             await writer.drain()
 
 
-async def main():
-    global HOST, PORT
-    logging.basicConfig(level=logging.DEBUG, format="%(threadName)s --> %(asctime)s - %(levelname)s: %(message)s",
-                        datefmt="%H:%M:%S")
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-a", "--address", help="host address", default=HOST, type=str, dest="address")
-    parser.add_argument("-p", "--port", help="port number", default=PORT, type=int, dest="port")
-    args = parser.parse_args()  # TODO: non funzionante con asyncio
-    PORT = args.port
-    HOST = args.address
+async def keyboard_listener():
+    while True:
+        await asyncio.sleep(1)
 
-    logging.info(f"Server running on {HOST}:{PORT}...")
 
+async def main(host, port):
     server = await asyncio.start_server(server_handler, HOST, PORT)
+
+    logging.info(f"Server running on {host}:{port}...")
+
+    keyboard_listener_task = asyncio.create_task(keyboard_listener())
+    await keyboard_listener_task  # Concurrent task
 
     async with server:
         await server.serve_forever()
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(levelname)s: %(message)s",
+                        datefmt="%H:%M:%S")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-a", "--address", help="host address", default=HOST, type=str,
+                        dest="address")  # If an argument is not provided the default value is used
+    parser.add_argument("-p", "--port", help="port number", default=PORT, type=int, dest="port")
+    args = parser.parse_args()
+    PORT = args.port
+    HOST = args.address
+
     try:
-        asyncio.run(main())
+        asyncio.run(main(HOST, PORT))
     except KeyboardInterrupt:
         logging.warning("Server stopping...")

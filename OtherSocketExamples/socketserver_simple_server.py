@@ -9,9 +9,10 @@ Connect to this server using netcat or similar utilities
 
 HOST, PORT = "127.0.0.1", 9999
 
+
 # TODO: termina con \n --> adatta ricezione e trasmissione
 
-class ThreadedTCPRequestHandler(socketserver.BaseRequestHandler):
+class RequestHandler(socketserver.BaseRequestHandler):
 
     def handle(self):
         logging.info(f"New connection {self.client_address}".encode())
@@ -22,7 +23,7 @@ class ThreadedTCPRequestHandler(socketserver.BaseRequestHandler):
             except ConnectionResetError:
                 logging.error(f"Closed connection - Reset Connection Error: {self.client_address}")
                 break
-            cmd = data[0]
+            cmd = data
             logging.debug(f"Received: {cmd}")
             if not cmd: break
             if cmd == '0':
@@ -50,12 +51,14 @@ class ThreadedTCPRequestHandler(socketserver.BaseRequestHandler):
         logging.info(f"Connection closed by client {self.client_address}")
 
 
-class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
-    pass
+def main(host, port):
+    logging.info(f"Server running on {host}:{port}...")
+
+    with socketserver.ThreadingTCPServer((host, port), RequestHandler) as server:
+        server.serve_forever()
 
 
-def main():
-    global HOST, PORT
+if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG, format="%(threadName)s --> %(asctime)s - %(levelname)s: %(message)s",
                         datefmt="%H:%M:%S")
     parser = argparse.ArgumentParser()
@@ -64,15 +67,8 @@ def main():
     args = parser.parse_args()
     PORT = args.port
     HOST = args.address
-    logging.info(f"Server running on {HOST}:{PORT}...")
-    server = ThreadedTCPServer((HOST, PORT), ThreadedTCPRequestHandler)
+
     try:
-        server.serve_forever()
+        main(HOST, PORT)
     except KeyboardInterrupt:
-        logging.warning("Stopping...")
-    finally:
-        server.server_close()
-
-
-if __name__ == "__main__":
-    main()
+        logging.warning("Stopping server...")
