@@ -93,7 +93,7 @@ async def keyboard_listener():
 
 
 async def main(host, port):
-    server = await asyncio.start_server(server_handler, HOST, PORT)
+    server = await asyncio.start_server(server_handler, host, port)
 
     logging.info(f"Server running on {host}:{port}...")
 
